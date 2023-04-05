@@ -1,0 +1,8 @@
+[basic]
+INDENT_SIZE=4
+COMMENT_STYLE="::"
+
+[reg]
+CAPTIALIZE_PATH=true
+CAPITALIZE_ARGS=false
+SHORT_PATHS=true
