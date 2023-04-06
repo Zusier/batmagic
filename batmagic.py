@@ -42,23 +42,28 @@ def format_batch_script(script_lines):
     for line in script_lines:
         line = line.strip()
         match line:
+            # check if there should be an indent on unclosed blocks
             case _ if ("{" in line and "}" not in line) or (
                 "(" in line and ")" not in line
             ):
                 formatted_lines.append((indent_prefix * indent_level) + line)
                 indent_level += 1
+            # check for closed blocks and decrease indents
             case _ if ("{" not in line and "}" in line) or (
                 "(" not in line and ")" in line
             ):
                 indent_level -= 1
                 formatted_lines.append((indent_prefix * indent_level) + line)
+            # check for comments
             case _ if line.startswith("::"):
                 formatted_lines.append(config["basic"]["COMMENT_STYLE"] + line[2:])
             case _ if line.startswith("REM"):
                 formatted_lines.append(config["basic"]["COMMENT_STYLE"] + line[3:])
+            # format registry commands
             case _ if line.startswith("reg"):
                 reg = format_reg(line, config)
                 formatted_lines.append((indent_prefix * indent_level) + reg)
+            # check for goto's and labels
             case _ if line.startswith("goto") or line.startswith(":"):
                 formatted_lines.append(" " * indent_level + line)
             case _:
