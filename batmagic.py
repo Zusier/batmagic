@@ -1,14 +1,12 @@
 import argparse
 import tomllib
 import re
-
-CONFIG = "config.toml"
-
+import time
 
 def load_config():
+    CONFIG = "config.toml"
     with open(CONFIG, "rb") as f:
         return tomllib.load(f)
-
 
 # replace that is not case sensitive
 def no_case_replace(line, find, replace):
@@ -32,11 +30,10 @@ def format_reg(line, config):
     return line
 
 
-def format_batch_script(script_lines):
+def format_batch_script(script_lines, config):
     formatted_lines = []
     # keeps track of the depth of indents
     indent_level = 0
-    config = load_config()
     indent_prefix = " " * config["basic"]["INDENT_SIZE"]
 
     for line in script_lines:
@@ -76,11 +73,22 @@ if __name__ == "__main__":
     parser.add_argument("filename")
     args = parser.parse_args()
 
+    # load config
+    config = load_config()
+
     # load script to format
     with open(args.filename, "r") as f:
         script_lines = f.readlines()
 
-    formatted_lines = format_batch_script(script_lines)
+    start_time = time.perf_counter()  # start the timer
+
+    formatted_lines = format_batch_script(script_lines, config)
+
+    # record runtime
+    end_time = time.perf_counter()  # stop the timer
+    elapsed_time_ms = (end_time - start_time) * 1000
+
+    print(f"Execution time: {elapsed_time_ms:.2f} ms")
 
     output_filename = args.filename.split(".")[0] + "_formatted.bat"
     with open(output_filename, "w") as f:
